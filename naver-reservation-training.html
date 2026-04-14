@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>네이버 예약 도입 실무 교육 | 영업대행사 온보딩</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
+
+  :root {
+    --naver-green: #03C75A;
+    --naver-green-dark: #02a94d;
+    --naver-blue: #4A6CF7;
+    --naver-blue-light: #6B8AFF;
+    --bg-light: #F8F9FC;
+    --bg-card: #FFFFFF;
+    --bg-step: #EEF1F8;
+    --text-primary: #1A1A1A;
+    --text-secondary: #555;
+    --text-muted: #888;
+    --border-color: #E2E8F0;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+    --radius: 12px;
+    --radius-sm: 8px;
+    --warning-bg: #FFF8E1;
+    --warning-border: #FFD54F;
+    --danger-bg: #FFEBEE;
+    --danger-border: #EF5350;
+    --success-bg: #E8F5E9;
+    --success-border: #66BB6A;
+    --info-bg: #E3F2FD;
+    --info-border: #42A5F5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-light);
+    color: var(--text-primary);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== HERO ===== */
+  .hero {
+    background: linear-gradient(135deg, #5B6CF7 0%, #7B8AFF 50%, #4A6CF7 100%);
+    color: white;
+    padding: 80px 24px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at center, rgba(255,255,255,0.08) 0%, transparent 70%);
+    animation: float 20s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 24px;
+  }
+  .hero-badge .n-logo {
+    background: white;
+    color: var(--naver-green);
+    font-weight: 900;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 800;
+    line-height: 1.3;
+    margin-bottom: 16px;
+  }
+  .hero p {
+    font-size: 17px;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto 32px;
+    line-height: 1.6;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: 14px;
+    opacity: 0.8;
+  }
+  .hero-meta span { display: flex; align-items: center; gap: 6px; }
+
+  /* ===== NAV ===== */
+  .sticky-nav {
+    position: sticky;
+    top: 0;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 100;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .sticky-nav::-webkit-scrollbar { height: 0; }
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 4px;
+    padding: 8px 16px;
+  }
+  .nav-link {
+    white-space: nowrap;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+  .nav-link:hover {
+    background: var(--bg-step);
+    color: var(--naver-blue);
+  }
+  .nav-link.active {
+    background: var(--naver-blue);
+    color: white;
+  }
+
+  /* ===== MAIN ===== */
+  .main { max-width: 960px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  /* ===== SECTION ===== */
+  .section {
+    margin-bottom: 48px;
+    scroll-margin-top: 60px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--naver-blue);
+  }
+  .section-number {
+    background: var(--naver-blue);
+    color: white;
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+  }
+  .card-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ===== PROCESS FLOW ===== */
+  .process-flow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .process-step {
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 20px 16px;
+    text-align: center;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .process-step:hover {
+    border-color: var(--naver-blue);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .step-num {
+    background: var(--naver-blue);
+    color: white;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 14px;
+    margin: 0 auto 10px;
+  }
+  .step-label {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+  .step-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ===== ALERT BOXES ===== */
+  .alert {
+    padding: 16px 20px;
+    border-radius: var(--radius-sm);
+    margin: 16px 0;
+    font-size: 14px;
+    line-height: 1.7;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .alert-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .alert-warning { background: var(--warning-bg); border-left: 4px solid var(--warning-border); }
+  .alert-danger { background: var(--danger-bg); border-left: 4px solid var(--danger-border); }
+  .alert-success { background: var(--success-bg); border-left: 4px solid var(--success-border); }
+  .alert-info { background: var(--info-bg); border-left: 4px solid var(--info-border); }
+
+  /* ===== STEP DETAIL ===== */
+  .step-detail {
+    background: var(--bg-step);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 16px 0;
+  }
+  .step-detail h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--naver-blue);
+  }
+  .step-detail ol, .step-detail ul {
+    padding-left: 20px;
+    font-size: 14px;
+  }
+  .step-detail li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+  }
+
+  /* ===== CHECKLIST ===== */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    padding: 10px 0;
+    padding-left: 32px;
+    position: relative;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--naver-green);
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  /* ===== KPI BOX ===== */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .kpi-item {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    text-align: center;
+  }
+  .kpi-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--naver-blue);
+    margin-bottom: 4px;
+  }
+  .kpi-label {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* ===== REFERENCE LINKS ===== */
+  .ref-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .ref-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all 0.2s;
+    font-size: 14px;
+  }
+  .ref-link:hover {
+    border-color: var(--naver-green);
+    box-shadow: var(--shadow-sm);
+    transform: translateX(4px);
+  }
+  .ref-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--success-bg);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 18px;
+  }
+  .ref-link .ref-text { font-weight: 500; }
+
+  /* ===== VIDEO SECTION ===== */
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .video-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: all 0.2s;
+  }
+  .video-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  .video-thumb {
+    width: 100%;
+    height: 140px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    font-size: 40px;
+  }
+  .video-title {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .video-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* ===== CONTACT BOX ===== */
+  .contact-box {
+    background: linear-gradient(135deg, #f6f8ff 0%, #eef1ff 100%);
+    border: 1px solid #d4daff;
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 20px 0;
+  }
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 14px;
+  }
+  .contact-icon { font-size: 20px; }
+
+  /* ===== HIGHLIGHT ===== */
+  .highlight {
+    background: linear-gradient(to bottom, transparent 60%, #fff176 60%);
+    padding: 0 2px;
+    font-weight: 600;
+  }
+  .highlight-blue {
+    background: linear-gradient(to bottom, transparent 60%, #bbdefb 60%);
+    padding: 0 2px;
+    font-weight: 600;
+  }
+
+  /* ===== TAG ===== */
+  .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .tag-agency { background: #E3F2FD; color: #1565C0; }
+  .tag-naver { background: #E8F5E9; color: #2E7D32; }
+  .tag-important { background: #FFF3E0; color: #E65100; }
+
+  /* ===== ACCORDION ===== */
+  .accordion { margin: 12px 0; }
+  .accordion-item {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    overflow: hidden;
+    background: white;
+  }
+  .accordion-header {
+    padding: 16px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 600;
+    font-size: 15px;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .accordion-header:hover { background: var(--bg-step); }
+  .accordion-arrow {
+    transition: transform 0.3s;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .accordion-item.open .accordion-arrow { transform: rotate(180deg); }
+  .accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+  }
+  .accordion-item.open .accordion-body {
+    max-height: 2000px;
+    padding: 0 20px 20px;
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    background: #2A2D3E;
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 13px;
+  }
+  .footer strong { color: white; }
+
+  /* ===== BACK TO TOP ===== */
+  .back-to-top {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    background: var(--naver-blue);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s;
+    z-index: 99;
+  }
+  .back-to-top.visible { opacity: 1; pointer-events: auto; }
+  .back-to-top:hover { background: var(--naver-blue-light); transform: translateY(-2px); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .hero { padding: 60px 20px 40px; }
+    .main { padding: 24px 16px 60px; }
+    .card { padding: 20px; }
+    .process-flow { grid-template-columns: repeat(2, 1fr); }
+    .section-title { font-size: 18px; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .ref-grid { grid-template-columns: 1fr; }
+    .hero-meta { flex-direction: column; gap: 8px; align-items: center; }
+  }
+  @media (max-width: 480px) {
+    .process-flow { grid-template-columns: 1fr; }
+  }
+
+  /* ===== PROGRESS INDICATOR ===== */
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--naver-green), var(--naver-blue));
+    z-index: 200;
+    transition: width 0.1s;
+  }
+
+  /* ===== TABLE OF CONTENTS ===== */
+  .toc-card {
+    background: white;
+    border: 2px solid var(--naver-blue);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 40px;
+  }
+  .toc-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 8px;
+  }
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .toc-item:hover { background: var(--bg-step); color: var(--naver-blue); }
+  .toc-num {
+    background: var(--bg-step);
+    color: var(--naver-blue);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  /* Separator */
+  .sep {
+    height: 1px;
+    background: var(--border-color);
+    margin: 32px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="n-logo">N</span>
+      플레이스 | 네이버 예약
+    </div>
+    <h1>네이버 예약 도입<br>실무 교육</h1>
+    <p>영업대행사 및 프리랜서 영업담당자를 위한<br>네이버 식당 예약 연동 온보딩 가이드</p>
+    <div class="hero-meta">
+      <span>&#128205; 대상: 제주도 · 호텔 등 인기 식당</span>
+      <span>&#128197; 최종 업데이트: 2026.03</span>
+      <span>&#9201; 예상 학습시간: 약 40분</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STICKY NAV ===== -->
+<nav class="sticky-nav" id="stickyNav">
+  <div class="nav-inner">
+    <a href="#overview" class="nav-link">업무요약</a>
+    <a href="#process" class="nav-link">업무프로세스</a>
+    <a href="#step1" class="nav-link">1.주인권한</a>
+    <a href="#step2" class="nav-link">2.주인변경</a>
+    <a href="#step3" class="nav-link">3.예약가입</a>
+    <a href="#step4" class="nav-link">4.상품등록</a>
+    <a href="#step5" class="nav-link">5.페이가입</a>
+    <a href="#step6" class="nav-link">6.검수신청</a>
+    <a href="#step7" class="nav-link">7.예약노출</a>
+    <a href="#step8" class="nav-link">8.2차연동</a>
+    <a href="#contact" class="nav-link">문의채널</a>
+    <a href="#videos" class="nav-link">교육영상</a>
+    <a href="#references" class="nav-link">참고자료</a>
+  </div>
+</nav>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="main">
+
+  <!-- TOC -->
+  <div class="toc-card">
+    <div class="toc-title">&#128218; 목차</div>
+    <div class="toc-grid">
+      <a href="#overview" class="toc-item"><span class="toc-num">&#9733;</span> 업무 요약 및 성공 기준</a>
+      <a href="#process" class="toc-item"><span class="toc-num">&#9733;</span> 업무 프로세스 (8단계)</a>
+      <a href="#step1" class="toc-item"><span class="toc-num">1</span> 주인권한 확인</a>
+      <a href="#step2" class="toc-item"><span class="toc-num">2</span> 주인변경 진행</a>
+      <a href="#step3" class="toc-item"><span class="toc-num">3</span> 예약 서비스 가입</a>
+      <a href="#step4" class="toc-item"><span class="toc-num">4</span> 예약 상품 등록</a>
+      <a href="#step5" class="toc-item"><span class="toc-num">5</span> 네이버페이 가입</a>
+      <a href="#step6" class="toc-item"><span class="toc-num">6</span> 검수 신청 진행</a>
+      <a href="#step7" class="toc-item"><span class="toc-num">7</span> 예약 버튼 노출</a>
+      <a href="#step8" class="toc-item"><span class="toc-num">8</span> 캐치테이블 2차연동</a>
+      <a href="#contact" class="toc-item"><span class="toc-num">&#128222;</span> 문의 채널 및 참고사항</a>
+      <a href="#videos" class="toc-item"><span class="toc-num">&#127909;</span> 교육 영상</a>
+      <a href="#references" class="toc-item"><span class="toc-num">&#128279;</span> 참고 자료 링크</a>
+    </div>
+  </div>
+
+  <!-- ===== SECTION: 업무 요약 ===== -->
+  <section class="section" id="overview">
+    <div class="section-header">
+      <div class="section-number">&#9733;</div>
+      <h2 class="section-title">업무 요약</h2>
+    </div>
+    <div class="card">
+      <p style="font-size:15px; margin-bottom:20px;">
+        네이버에서 지정한 <span class="highlight">식당 영업 리스트</span>에 있는 업체에 <span class="highlight">네이버 예약을 도입</span>하고, 캐치테이블 사용 식당에는 <span class="highlight-blue">캐치테이블에 2차 연동을 요청</span>합니다.
+      </p>
+
+      <div class="card-title">&#127919; 영업 성공 기준</div>
+      <div class="kpi-grid">
+        <div class="kpi-item">
+          <div class="kpi-value">ON</div>
+          <div class="kpi-label">네이버 검색 시 예약 버튼 노출</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-value">3개월</div>
+          <div class="kpi-label">예약 건 유지 기간</div>
+        </div>
+        <div class="kpi-item">
+          <div class="kpi-value">1건+</div>
+          <div class="kpi-label">매월 최소 예약 건수</div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning">
+        <span class="alert-icon">&#9888;&#65039;</span>
+        <div>예약 서비스 외 <strong>페이, 쿠폰 적용</strong> 등은 성공 기준과는 별개이며, <strong>영업 역량에 따라 진행</strong>합니다.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SECTION: 업무 프로세스 ===== -->
+  <section class="section" id="process">
+    <div class="section-header">
+      <div class="section-number">&#9733;</div>
+      <h2 class="section-title">업무 프로세스 (8단계)</h2>
+    </div>
+    <div class="card">
+      <p style="font-size:14px; color:var(--text-secondary); margin-bottom:20px;">
+        아래 8단계를 순서대로 진행합니다. 각 단계를 클릭하면 상세 설명으로 이동합니다.
+      </p>
+      <div class="process-flow">
+        <a href="#step1" class="process-step" style="text-decoration:none; color:inherit;">
+          <div class="step-num">1</div>
+          <div class="step-label">주인권한 확인</div>
+          <div class="step-desc">플레이스 관리 중인<br>네이버 ID 확인</div>
+        </a>
+        <a href="#step2" class="process-step" style="text-decoration:none; color:inherit;">
+          <div class="step-num">2</div>
+          <div class="step-label">주인변경 진행</div>
+          <div class="step-desc">ID 없을 시<br>주인 변경 통해 권한 획득</div>
+        </a>
+        <a href="#step3" class="process-step" style="text-decoration:none; color:inherit;">
+          <div class="step-num">3</div>
+          <div class="step-label">예약서비스 가입</div>
+          <div class="step-desc">네이버 예약<br>서비스 가입 진행</div>
+        </a>
+        <a href="#step4" class="process-step" style="text-decoration:none; color:inherit;">
+          <div class="step-num">4</div>
+          <div class="step-label">예약상품 등록</div>
+          <div class="step-desc">네이버 예약<br>상품 만들기</div>
+        </a>
+        <a href="#step5" class="process-step" style="text-decoration:none; color:inherit;">
+          <div class="step-num">5</div>
+          <div class="step-label">페이서비스 가입</div>
+          <div class="step-desc">예약금/선결제 시<br>네이버페이 가입</div>
+        </a>
+        <a href="#step6" class="process-step" style="text-decoration:none; color:inherit;">
+          <div class="step-num">6</div>
+          <div class="step-label">검수 신청</div>
+          <div class="step-desc">검수 신청 및<br>패스트 트랙</div>
+        </a>
+        <a href="#step7" class="process-step" style="text-decoration:none; color:inherit;">
+          <div class="step-num">7</div>
+          <div class="step-label">예약버튼 노출</div>
+          <div class="step-desc">검수 완료 후<br>예약 버튼 노출 확인</div>
+        </a>
+        <a href="#step8" class="process-step" style="text-decoration:none; color:inherit;">
+          <div class="step-num">8</div>
+          <div class="step-label">2차연동 요청</div>
+          <div class="step-desc">캐치테이블에<br>2차연동 요청</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STEP 1 ===== -->
+  <section class="section" id="step1">
+    <div class="section-header">
+      <div class="section-number">1</div>
+      <h2 class="section-title">주인권한 확인</h2>
+    </div>
+    <div class="card">
+      <div class="card-title">&#128100; 매장 플레이스를 관리하고 있는 네이버 ID 확인</div>
+      <p style="font-size:14px; margin-bottom:16px;">아래와 같은 상황에서 주인권한 확인이 필요합니다:</p>
+      <ul class="checklist">
+        <li>사장님이 플레이스를 관리하지 않고 있다고 하시는 경우</li>
+        <li>스마트플레이스를 가입할 때 대표자가 아닌 직원명의로 가입한 경우</li>
+        <li>사장님이 플레이스를 관리하는 네이버ID를 모른다고 하시는 경우</li>
+      </ul>
+
+      <div class="step-detail">
+        <h4>&#128269; 확인 방법</h4>
+        <ol>
+          <li>네이버에서 <strong>'스마트플레이스'</strong> 검색 후 접속 → <a href="https://new.smartplace.naver.com/" target="_blank" style="color:var(--naver-blue);">https://new.smartplace.naver.com/</a></li>
+          <li>로그인 후 <strong>'내 업체'</strong>에 내 매장 플레이스가 노출되어있는지 확인</li>
+          <li>내 매장 플레이스가 보이지 않는다면 → <strong>플레이스 주인 변경이 필요</strong> (STEP 2로 이동)</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STEP 2 ===== -->
+  <section class="section" id="step2">
+    <div class="section-header">
+      <div class="section-number">2</div>
+      <h2 class="section-title">주인변경 진행</h2>
+    </div>
+    <div class="card">
+      <div class="card-title">&#128260; 새로운 ID로 플레이스 관리 가능 (필요한 경우만 진행)</div>
+
+      <div class="accordion">
+        <div class="accordion-item open">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10102; 스마트플레이스 접속 후 [업체찾기] 버튼 클릭
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <ol style="font-size:14px; padding-left:20px;">
+              <li>네이버에서 <strong>'스마트플레이스'</strong> 검색 후 접속 → <a href="https://new.smartplace.naver.com/" target="_blank" style="color:var(--naver-blue);">https://new.smartplace.naver.com/</a></li>
+              <li><strong>[업체 찾기]</strong> 클릭</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10103; 앞으로 매장 플레이스를 관리할 네이버 아이디로 로그인
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <p style="font-size:14px;">앞으로 매장 '플레이스'를 관리할 네이버 아이디로 로그인합니다.</p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10104; 매장을 찾기 위해 3가지 방법 중 하나를 선택해 조회
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <p style="font-size:14px; margin-bottom:10px;">네이버에 등록된 내 매장을 찾기 위해 아래 중 하나를 입력해서 조회합니다:</p>
+            <ul style="font-size:14px; padding-left:20px;">
+              <li><strong>전화번호</strong>로 조회하기</li>
+              <li><strong>사업자등록번호</strong>로 조회하기</li>
+              <li><strong>업체명</strong>으로 조회하기</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10105; 조회 결과에서 내 매장 선택 후 [주인변경] 클릭
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <p style="font-size:14px;">조회 결과에서 여러 업체가 노출될 경우, 내 매장을 찾아 뒤 <strong>[주인변경]</strong>을 클릭합니다.</p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10106; ARS로 주인변경 진행
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <ol style="font-size:14px; padding-left:20px;">
+              <li><strong>[ARS로 주인변경]</strong> 클릭</li>
+              <li><span class="highlight">플레이스에 등록된 매장 전화번호</span>로 ARS 인증 진행</li>
+              <li>입력된 대표 전화번호는 네이버에서 내 매장 상호를 검색했을 때, <strong>매장 상세페이지에 노출되는 전화번호</strong></li>
+              <li>해당 전화번호로 ARS 인증이 불가한 경우, <strong>[서류로 주인 변경]</strong>을 클릭하여 사업자등록증을 등록해 진행 (3~5 영업일 소요)</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10107; 전화 걸기 클릭 후 인증 완료 시, 즉시 주인 변경 완료
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <p style="font-size:14px;">ARS 인증이 완료되면 즉시 주인 변경이 완료됩니다.</p>
+            <div class="alert alert-success">
+              <span class="alert-icon">&#9989;</span>
+              <div>주인 변경 완료 후, 해당 네이버 ID로 스마트플레이스에 로그인하면 '내 업체'에서 매장을 확인할 수 있습니다.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STEP 3 ===== -->
+  <section class="section" id="step3">
+    <div class="section-header">
+      <div class="section-number">3</div>
+      <h2 class="section-title">예약 서비스 가입</h2>
+    </div>
+    <div class="card">
+      <div class="card-title">&#128221; 네이버 예약 서비스 가입 (3단계)</div>
+
+      <div class="accordion">
+        <div class="accordion-item open">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10102; 스마트플레이스 접속 후 [예약/주문] 버튼 클릭
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <ol style="font-size:14px; padding-left:20px;">
+              <li>네이버에서 '스마트플레이스' 검색 후 접속</li>
+              <li>플레이스 관리중인 네이버 ID로 로그인 후 <strong>[예약/주문]</strong> 버튼 클릭</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10103; 예약/주문 서비스 추가 클릭
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <ol style="font-size:14px; padding-left:20px;">
+              <li><strong>[예약주문]</strong> 상단 탭 클릭</li>
+              <li><strong>[예약/주문 서비스 추가]</strong> 버튼 클릭</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10104; 정보 입력
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <div style="font-size:14px;">
+              <p style="margin-bottom:12px;">아래 정보를 정확히 입력합니다:</p>
+              <ul style="padding-left:20px;">
+                <li><strong>서비스명</strong>: <span class="highlight">'업체명'</span>으로 입력</li>
+                <li><strong>업체사진</strong>: 매장 관련 사진 (내부사진 등)으로 등록</li>
+                <li><strong>배경색상</strong>: 선택</li>
+                <li><strong>대표자명</strong>: <span class="highlight">사업자등록증 상 대표자명</span> 입력</li>
+                <li><strong>제공하는 항목</strong>: 매장에 해당하는 항목 선택 (시설정보, 서비스정보)</li>
+                <li><strong>연락처</strong>: 예약문의, 이메일, 관리자 연락처 (필수입력 O 항목 확인)</li>
+                <li><strong>업체서류</strong>: 필수 입력 X</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10105; 예약 유형 선택 및 완료
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <div style="font-size:14px;">
+              <p style="margin-bottom:12px;">예약 유형 선택:</p>
+              <ul style="padding-left:20px;">
+                <li><strong>시간까지 선택</strong> 클릭</li>
+                <li>유형: <strong>일반형</strong> 클릭 (날짜와 시간을 예약, 일반형만 네이버 주문이 가능)</li>
+              </ul>
+              <div class="alert alert-warning" style="margin-top:12px;">
+                <span class="alert-icon">&#9888;&#65039;</span>
+                <div>예약유형은 선택 후 <strong>변경할 수 없습니다</strong>. 실제 운영에 가장 적합한 유형으로 선택해 주세요.</div>
+              </div>
+              <p style="margin-top:12px;">서비스 등록이 완료되면 이어서 <strong>[예약 상품 등록하기]</strong>를 진행합니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STEP 4 ===== -->
+  <section class="section" id="step4">
+    <div class="section-header">
+      <div class="section-number">4</div>
+      <h2 class="section-title">예약 상품 등록</h2>
+    </div>
+    <div class="card">
+      <div class="card-title">&#128230; 네이버 예약 상품 등록하기</div>
+
+      <div class="accordion">
+        <div class="accordion-item open">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10102; 예약 상품 유형 선택, 상품명 및 상품 소개 입력
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <div style="font-size:14px;">
+              <ul style="padding-left:20px;">
+                <li><strong>유형</strong>: 일반 예약, 룸/좌석 예약, 포장 예약, 기타 예약 중 선택</li>
+                <li><strong>방문시 앉을 수 있는 자리</strong>: 홀, 룸, 바(카운터), 항가, 테라스, 루프탑(옥상), 야외, 단체석, 연인석 중 선택</li>
+                <li><strong>예약 상품명</strong>: 업체명 또는 상품명 입력 (필수)</li>
+                <li><strong>예약 상품 소개</strong>: 매장 소개 작성 (예: "그린식당은 100% 예약제로 운영합니다.")</li>
+                <li><strong>사진 추가</strong></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10103; 예약 방문 관련 유의 및 안내 사항 작성
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <div style="font-size:14px;">
+              <ul style="padding-left:20px;">
+                <li><strong>예약 꼭 확인해야할 사항</strong>: 예약자 요청 사항 입력</li>
+                <li><strong>룸 이용 안내</strong>: 필수 입력 아님 (예: "4인 이상 이용 가능합니다.")</li>
+                <li><strong>이용안내</strong>: 필수 입력 아님 (노키즈존, 반려동물 가능 여부 등)</li>
+                <li><strong>이용시간 안내</strong>: 필수 입력 아님 (예: "라스트 오더는 20:30 입니다.")</li>
+              </ul>
+              <div class="alert alert-info" style="margin-top:12px;">
+                <span class="alert-icon">&#128161;</span>
+                <div>고객이 예약 시 확인하는 중요 정보이므로, 꼼꼼하게 작성하면 예약 전환율이 높아집니다.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10104; 예약 운영 시간 설정
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <div style="font-size:14px;">
+              <ul style="padding-left:20px;">
+                <li><strong>항상 운영 계획</strong>: "네, 늘 운영합니다." 또는 "특정 기간만 운영해요!"</li>
+                <li><strong>예약 받는 시간 간격</strong>: 30분 단위 / 1시간 단위</li>
+                <li><strong>예약 운영 시간</strong>: 모든 영업일 같아요 / 평일·주말 달라요 / 요일별로 달라요</li>
+                <li><strong>운영 시간</strong>: 시작 ~ 마지막 시간 (고객이 선택할 수 있는 마지막 시간)</li>
+                <li><strong>휴무일</strong>: 정기 휴무일, 공휴일 중 휴무일 설정</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10105; 예약 상품 인원 설정
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <div style="font-size:14px;">
+              <ul style="padding-left:20px;">
+                <li><strong>예약 관리 기준</strong>: 인원으로 관리 / 예약건수로 관리 중 선택</li>
+                <li><strong>하루 예약 가능 인원(명)</strong>: 총 인원 설정</li>
+                <li><strong>예약 방식</strong>: 인원수 받기, 예약자 구분하기, 금액까지 받기 중 선택</li>
+                <li><strong>한 번에 예약 가능한 인원</strong>: 최소 ~ 최대 인원 설정</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STEP 5 ===== -->
+  <section class="section" id="step5">
+    <div class="section-header">
+      <div class="section-number">5</div>
+      <h2 class="section-title">네이버페이 가입</h2>
+    </div>
+    <div class="card">
+      <div class="card-title">&#128179; 네이버 페이 가입하기 (예약금/선결제 받을 매장만 해당)</div>
+
+      <div class="alert alert-info">
+        <span class="alert-icon">&#128161;</span>
+        <div>예약금/선결제 없이 예약 받을 매장인 경우, 이 단계를 건너뛰고 <strong>STEP 6 검수 신청</strong>으로 이동합니다.</div>
+      </div>
+
+      <div class="accordion">
+        <div class="accordion-item open">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10102; [N Pay 결제 사용하기] 클릭
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <p style="font-size:14px;">예약상품 화면에서 <strong>N Pay 결제 사용하기</strong>를 ON으로 설정합니다. 네이버페이에 가입되어 있지 않으면 가입 안내 팝업이 노출됩니다.</p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10103; N페이 결제사용 클릭 > [네이버페이 사용하기] 버튼 클릭
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <p style="font-size:14px;">스마트플레이스 > 솔루션 찾기 > 판매/결제 > <strong>"예약, 주문시 N페이 결제사용"</strong> > 자세히 > <strong>[네이버페이 사용하기]</strong> 버튼 클릭</p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10104; 페이 가입 진행
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <div style="font-size:14px;">
+              <ol style="padding-left:20px;">
+                <li>약관 <strong>전체동의</strong> 후 동의 클릭</li>
+                <li>사업자등록증 사진 올리기</li>
+                <li>사업자 정보 입력 (사업자 유형, 등록번호)</li>
+                <li>정산 정보 입력 (은행, 계좌번호, 대표자명)</li>
+              </ol>
+
+              <div class="alert alert-danger" style="margin-top:16px;">
+                <span class="alert-icon">&#9888;&#65039;</span>
+                <div>
+                  <strong>사업자등록증 올릴 때 반드시 마스킹(보이지 않게) 처리 필요!</strong><br>
+                  1) 주민번호 뒤 7자리 &nbsp; 2) 전화번호 &nbsp; 3) 이메일 주소
+                </div>
+              </div>
+
+              <div class="alert alert-warning" style="margin-top:8px;">
+                <span class="alert-icon">&#9733;</span>
+                <div>
+                  <strong>사업자등록증 상 대표자명</strong>과 <strong>계좌명(계좌주인)</strong>이 반드시 일치해야 합니다.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STEP 6 ===== -->
+  <section class="section" id="step6">
+    <div class="section-header">
+      <div class="section-number">6</div>
+      <h2 class="section-title">검수 신청 진행</h2>
+    </div>
+    <div class="card">
+      <div class="card-title">&#128270; 검수 신청</div>
+      <div class="accordion">
+        <div class="accordion-item open">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10102; 예약 상품 노출 ON
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <p style="font-size:14px;">예약상품 화면에서 노출중을 <strong>ON</strong>으로 변경합니다. 예약 신청과 동시에 확정 설정도 확인하세요.</p>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            &#10103; 예약주문 > 설정 > 운영설정 > 검수신청 진행
+            <span class="accordion-arrow">&#9660;</span>
+          </div>
+          <div class="accordion-body">
+            <p style="font-size:14px;">스마트플레이스에서 <strong>예약주문 > 설정 > 운영설정</strong>으로 이동 후 <strong>[검수신청]</strong> 버튼을 클릭합니다.</p>
+            <p style="font-size:14px; margin-top:8px;">검수가 완료되면 메일로 결과를 안내 드립니다. 검수 완료 후 <strong>예약받기 ON</strong>으로 변경하세요.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">&#9889; 검수 신청 후 패스트 트랙</div>
+      <div style="font-size:14px;">
+        <p style="margin-bottom:16px;">검수 신청 후 대행사 진행 필요 사항:</p>
+
+        <div style="margin-bottom:16px; padding:16px; background:var(--bg-step); border-radius:var(--radius-sm);">
+          <p style="margin-bottom:8px;"><span class="tag tag-agency">대행사</span> 검수신청 후 매장명 및 매장 플레이스 링크를 <strong>구글 시트에 업데이트</strong></p>
+        </div>
+
+        <div style="margin-bottom:16px; padding:16px; background:var(--bg-step); border-radius:var(--radius-sm);">
+          <p style="margin-bottom:8px;"><span class="tag tag-naver">네이버</span> <strong>일반 검수</strong> (영업일 기준)</p>
+          <ul style="padding-left:20px; margin-top:8px;">
+            <li>당일 낮 12시 이전 신청 → 당일 19시까지 검수 완료</li>
+            <li>당일 낮 12시 이후 신청 → 익일 오후까지 검수 완료</li>
+          </ul>
+          <p style="margin-top:8px;"><strong>긴급 검수</strong>: 카카오톡 단체방에 요청 (즉시 검수가 필요한 긴급 건에만 제한적으로 대응)</p>
+          <p style="margin-top:8px;">구글 시트 리스트의 매장 검수 후 검수 결과 대행사에 이메일로 전달 (1일 1회)</p>
+        </div>
+
+        <div style="padding:16px; background:var(--bg-step); border-radius:var(--radius-sm);">
+          <p style="margin-bottom:8px;"><span class="tag tag-agency">대행사</span> 아래 경우에 따라 사업주 대상 안내</p>
+          <ul style="padding-left:20px; margin-top:8px;">
+            <li><strong>검수 통과 시</strong>: 예약 버튼 노출 방법 안내 진행</li>
+            <li><strong>검수 보류 시</strong>: 보류 사유 확인하여 수정 후 재검수 요청 (신규 일자로)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">&#9888;&#65039; 검수 보류 시 수정 방법</div>
+      <div style="font-size:14px;">
+        <ol style="padding-left:20px;">
+          <li>스마트플레이스 <strong>[예약주문 > 설정 > 운영설정]</strong> 버튼을 클릭</li>
+          <li>상세보류 사유 확인 > 수정 > <strong>[재검수신청]</strong> 클릭</li>
+        </ol>
+        <div class="alert alert-info" style="margin-top:12px;">
+          <span class="alert-icon">&#128172;</span>
+          <div>보류된 업체와 사유는 이메일로 1일 1회 전달 드릴 예정입니다.<br>
+          * 참고: 검수결과는 플레이스 관리중인 네이버 아이디로도 메일이 발송됩니다.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STEP 7 ===== -->
+  <section class="section" id="step7">
+    <div class="section-header">
+      <div class="section-number">7</div>
+      <h2 class="section-title">예약 버튼 노출</h2>
+    </div>
+    <div class="card">
+      <div class="card-title">&#128064; 검수 통과 후 예약 버튼 노출 및 운영 점검</div>
+      <div style="font-size:14px;">
+        <p style="margin-bottom:16px;">검수 완료 후 아래 3가지를 반드시 확인하세요:</p>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:12px;">
+          <div style="background:var(--bg-step); padding:16px; border-radius:var(--radius-sm); border-left:4px solid var(--naver-blue);">
+            <strong>&#10102; 예약/주문받기 ON</strong>
+            <p style="font-size:13px; margin-top:6px; color:var(--text-secondary);">[예약주문 > 설정 > 운영설정]에서 예약/주문받기 ON으로 변경, 플레이스 연결하기</p>
+          </div>
+          <div style="background:var(--bg-step); padding:16px; border-radius:var(--radius-sm); border-left:4px solid var(--naver-green);">
+            <strong>&#10103; 예약 상품 ON 처리</strong>
+            <p style="font-size:13px; margin-top:6px; color:var(--text-secondary);">[예약주문 > 예약 > 예약상품]에서 노출중 ON으로 변경</p>
+          </div>
+          <div style="background:var(--bg-step); padding:16px; border-radius:var(--radius-sm); border-left:4px solid #FF9800;">
+            <strong>&#10104; '예약신청과 동시에 확정' 설정</strong>
+            <p style="font-size:13px; margin-top:6px; color:var(--text-secondary);">[예약주문 > 예약 > 예약상품]에서 설정 확인</p>
+          </div>
+        </div>
+
+        <div class="alert alert-success" style="margin-top:16px;">
+          <span class="alert-icon">&#127881;</span>
+          <div>모든 설정이 완료되면, <strong>네이버 검색결과에 예약 버튼이 노출</strong>됩니다! 고객이 예약 시 정상적으로 예약이 가능하도록 상품이 세팅되어 있어야 합니다.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== STEP 8 ===== -->
+  <section class="section" id="step8">
+    <div class="section-header">
+      <div class="section-number">8</div>
+      <h2 class="section-title">캐치테이블 2차연동 요청</h2>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:#EF5350;">&#128279; 캐치테이블에 2차연동 요청 (캐치테이블 사용 식당 한정)</div>
+
+      <div style="font-size:14px;">
+        <div style="background: #FFF3E0; padding:16px; border-radius:var(--radius-sm); margin-bottom:16px;">
+          <strong>캐치테이블 2차 연동이란?</strong><br>
+          좌석 재고의 마스터가 캐치테이블이 되며, 캐치 어드민에서 네이버예약의 예약을 모두 관리할 수 있음. 즉, 식당에서는 네이버예약 페이지를 직접 관리할 필요가 없습니다.
+        </div>
+
+        <div class="accordion">
+          <div class="accordion-item open">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+              &#10102; 캐치테이블에서 2차연동 서비스 신청
+              <span class="accordion-arrow">&#9660;</span>
+            </div>
+            <div class="accordion-body">
+              <ol style="padding-left:20px;">
+                <li>[캐치테이블 서비스 사용 가이드 > 연동신청하기]로 이동</li>
+                <li>연동 신청 후 신청화면을 캡처해 주세요.</li>
+                <li>제출 후 캐치테이블 채팅 상담으로 말씀해 주세요.</li>
+                <li>연동 작업은 순차적으로 진행되며, 최대 1~2일 정도 소요됩니다.</li>
+              </ol>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+              &#10103; 예약 상품 ON 처리 및 연동 결과 확인
+              <span class="accordion-arrow">&#9660;</span>
+            </div>
+            <div class="accordion-body">
+              <p>연동 완료 후 예약 상품을 ON 처리합니다.</p>
+              <div class="alert alert-warning" style="margin-top:12px;">
+                <span class="alert-icon">&#9888;&#65039;</span>
+                <div>
+                  <strong>캐치테이블에서 2차연동 거절하면:</strong><br>
+                  캐치테이블에 거절 사유를 문의하고, 식당에서 직접 네이버예약을 사용할 수 있도록 설득 및 교육 진행
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="sep"></div>
+
+  <!-- ===== 문의 채널 ===== -->
+  <section class="section" id="contact">
+    <div class="section-header">
+      <div class="section-number">&#128222;</div>
+      <h2 class="section-title">네이버 문의 채널 및 영업 참고 사항</h2>
+    </div>
+    <div class="card">
+      <div class="card-title">&#128172; 네이버 문의 채널 (톡톡, 이메일)</div>
+      <ul style="font-size:14px; padding-left:20px; margin-bottom:16px;">
+        <li>현장에서 확인이 필요한 사항이 생기면 아래 채널을 통해 네이버에 문의</li>
+        <li>효율적인 응대를 위해 주요 커뮤니케이션 담당자 <strong>3명 이내</strong>로 선정하여 진행</li>
+        <li>이메일 발송 시에는 <strong>[대행사명] 말머리</strong> 추가 필요</li>
+      </ul>
+
+      <div class="contact-box">
+        <div class="contact-item">
+          <span class="contact-icon">&#128172;</span>
+          <div><strong>긴급응대:</strong> 카카오톡 단체방 (영업 시작 후 단체방 생성)</div>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">&#128231;</span>
+          <div><strong>이메일:</strong> affiliate_support@cpartners-corp.com</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">&#9888;&#65039; 영업 시 참고 사항</div>
+      <div class="alert alert-danger">
+        <span class="alert-icon">&#128683;</span>
+        <div>
+          <strong>사업자의 개인정보를 받거나 저장하지 말아주세요.</strong>
+        </div>
+      </div>
+      <div class="alert alert-warning">
+        <span class="alert-icon">&#128172;</span>
+        <div>
+          예약 서비스 등록 후 사업자에게 <strong>'마케팅 영업' 전화가 걸리는 경우</strong>가 있습니다. 네이버와 영업 대행사와는 무관하니 사업자분이 피해를 입지 않도록 영업 후 말씀 부탁드립니다.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="sep"></div>
+
+  <!-- ===== 교육 영상 ===== -->
+  <section class="section" id="videos">
+    <div class="section-header">
+      <div class="section-number">&#127909;</div>
+      <h2 class="section-title">교육 영상 (Zoom 녹화)</h2>
+    </div>
+    <div class="card">
+      <p style="font-size:14px; color:var(--text-secondary); margin-bottom:20px;">
+        아래 영상은 네이버 예약 부서에서 진행한 Zoom 교육 녹화 영상입니다. 순서대로 시청해 주세요.
+      </p>
+      <div class="video-grid">
+        <div class="video-card">
+          <div class="video-thumb">&#127916;</div>
+          <div class="video-title">1. 네이버 식당 예약 - 예약소개</div>
+          <div class="video-desc">네이버 예약 서비스 전반적인 소개</div>
+        </div>
+        <div class="video-card">
+          <div class="video-thumb" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">&#127916;</div>
+          <div class="video-title">2. 네이버 식당 예약 - 실무교육</div>
+          <div class="video-desc">실제 예약 도입 실무 프로세스 교육</div>
+        </div>
+        <div class="video-card">
+          <div class="video-thumb" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">&#127916;</div>
+          <div class="video-title">3. 네이버 식당 예약 - Q&A</div>
+          <div class="video-desc">자주 묻는 질문 및 답변</div>
+        </div>
+      </div>
+      <div class="alert alert-info" style="margin-top:16px;">
+        <span class="alert-icon">&#128221;</span>
+        <div>교육 영상 파일은 별도로 전달드립니다. 담당자에게 문의해 주세요.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="sep"></div>
+
+  <!-- ===== 참고 자료 ===== -->
+  <section class="section" id="references">
+    <div class="section-header">
+      <div class="section-number">&#128279;</div>
+      <h2 class="section-title">참고 자료 (네이버 비즈니스 스쿨)</h2>
+    </div>
+    <div class="card">
+      <p style="font-size:14px; color:var(--text-secondary); margin-bottom:20px;">
+        아래 자료들은 네이버에서 제공하는 공식 교육 콘텐츠입니다. 영업 시 식당 사장님께 안내하시면 더욱 효과적입니다.
+      </p>
+      <div class="ref-grid">
+        <a href="https://bizschool.naver.com/" target="_blank" class="ref-link">
+          <div class="ref-icon">&#127891;</div>
+          <span class="ref-text">네이버 비즈니스 스쿨 (메인)</span>
+        </a>
+        <a href="https://bizschool.naver.com/" target="_blank" class="ref-link">
+          <div class="ref-icon">&#128205;</div>
+          <span class="ref-text">스마트플레이스 이해와 활용</span>
+        </a>
+        <a href="https://bizschool.naver.com/" target="_blank" class="ref-link">
+          <div class="ref-icon">&#128197;</div>
+          <span class="ref-text">네이버예약의 이해와 활용</span>
+        </a>
+        <a href="https://bizschool.naver.com/" target="_blank" class="ref-link">
+          <div class="ref-icon">&#127860;</div>
+          <span class="ref-text">네이버 예약 시작하기 (식음료 업종 사례)</span>
+        </a>
+        <a href="https://bizschool.naver.com/" target="_blank" class="ref-link">
+          <div class="ref-icon">&#128200;</div>
+          <span class="ref-text">플레이스 통계의 이해</span>
+        </a>
+        <a href="https://bizschool.naver.com/" target="_blank" class="ref-link">
+          <div class="ref-icon">&#128337;</div>
+          <span class="ref-text">빈자리가 검색되는, '실시간예약' 상세정보 입력 방법</span>
+        </a>
+        <a href="https://bizschool.naver.com/" target="_blank" class="ref-link">
+          <div class="ref-icon">&#128640;</div>
+          <span class="ref-text">온라인 마케팅 로드맵 A to Z</span>
+        </a>
+        <a href="https://bizschool.naver.com/" target="_blank" class="ref-link">
+          <div class="ref-icon">&#127915;</div>
+          <span class="ref-text">신규부터 단골까지 사로잡는 '플레이스 쿠폰'</span>
+        </a>
+        <a href="https://bizschool.naver.com/" target="_blank" class="ref-link">
+          <div class="ref-icon">&#127828;</div>
+          <span class="ref-text">외식업 브랜딩</span>
+        </a>
+        <a href="https://bizschool.naver.com/" target="_blank" class="ref-link">
+          <div class="ref-icon">&#128176;</div>
+          <span class="ref-text">내 식당, 네이버에 알리고 매출 올리기 (예약/주문 포함)</span>
+        </a>
+        <a href="https://bizschool.naver.com/" target="_blank" class="ref-link">
+          <div class="ref-icon">&#11088;</div>
+          <span class="ref-text">잘 되는 매장의 플레이스 리뷰 관리 전략</span>
+        </a>
+        <a href="https://bizschool.naver.com/" target="_blank" class="ref-link">
+          <div class="ref-icon">&#127942;</div>
+          <span class="ref-text">2025년 플레이스 마케팅스쿨 성공사례 - 외식업종</span>
+        </a>
+      </div>
+      <div class="alert alert-info" style="margin-top:16px;">
+        <span class="alert-icon">&#128161;</span>
+        <div>위 링크들은 모두 <strong>네이버 비즈니스 스쿨(bizschool.naver.com)</strong>에서 해당 제목으로 검색하시면 찾으실 수 있습니다. 각 콘텐츠의 정확한 URL은 비즈니스 스쿨 내에서 확인해 주세요.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <p><strong>N 플레이스 | 네이버 예약 도입 실무 교육</strong></p>
+  <p style="margin-top:8px;">&copy; NAVER Corp. | 본 자료는 영업대행사 교육 목적으로 제작되었습니다.</p>
+  <p style="margin-top:4px;">최종 업데이트: 2026.03</p>
+</footer>
+
+<!-- Back to Top -->
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0, behavior:'smooth'})">&#8593;</button>
+
+<script>
+  // Accordion
+  function toggleAccordion(header) {
+    const item = header.parentElement;
+    item.classList.toggle('open');
+  }
+
+  // Progress Bar
+  window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrollTop / docHeight) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+
+    // Back to top
+    const btn = document.getElementById('backToTop');
+    if (scrollTop > 400) btn.classList.add('visible');
+    else btn.classList.remove('visible');
+  });
+
+  // Active nav link on scroll
+  const sections = document.querySelectorAll('.section');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => link.classList.remove('active'));
+        const activeLink = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+        if (activeLink) activeLink.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
